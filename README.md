@@ -113,3 +113,10 @@ on most GNU/Linux distros like Ubuntu and (I think) MacOS.  It might not work on
 Windows.  On Windows you can use `traefik.me` instead of `localhost`.  This does a real
 DNS lookup that resolves to `127.0.0.1` for any subdomain.  See <http://traefik.me/> for
 further info.
+
+## Further reading
+
+Before I formalised this set up I wrote a blog post about it
+[here](https://georgek.github.io/blog/posts/multiple-web-projects-traefik/). You can
+also find a link to the Hacker News discussion there with other ideas and options you
+might like.
