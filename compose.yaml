@@ -1,0 +1,29 @@
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    # Restart this container unless it was explicitly stopped
+    restart: "unless-stopped"
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - --global.sendanonymoususage=false
+      - --api.dashboard=true
+      - --providers.docker
+      - --providers.docker.httpClientTimeout=300
+      - --providers.docker.defaultRule=Host(`{{$$dcs := index .Labels "com.docker.compose.service"}}{{if $$dcs}}{{$$dcs}}.{{ index .Labels "com.docker.compose.project" }}{{else}}{{ normalize .Name }}{{end}}.localhost`)
+    ports:
+      - "80:80"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - traefik
+    labels:
+      - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.services.traefik.loadbalancer.server.port=80
+
+networks:
+  traefik:
+    attachable: true
+    name: traefik
