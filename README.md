@@ -73,6 +73,27 @@ networks:
 
 Now you can connect to http://www.proj.localhost/
 
+### Avoiding port clashes
+
+If you have a project that opens specific ports in its `compose.yaml` then you can
+disable this in your `compose.override.yaml` like so:
+
+```yaml
+services:
+  web:
+    ports: !reset []
+```
+
+You don't need open ports when using Traefik so this should work OK. You could also
+change the upstream file to allow the ports to be set using environment variables.
+
+If the upstream project includes an override file already then this is unfortunate. You
+will have to supply your own override file manually:
+
+```sh
+docker compose -f compose.yaml -f compose.override.yaml -f my-overrides.yaml up -d
+```
+
 ## How?
 
 Traefik listens to the Docker daemon and discovers running containers automatically.
