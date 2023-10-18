@@ -1,8 +1,8 @@
 # Traefik Local Reverse Proxy
 
-A compose file for running a traefik as a local reverse proxy for web services. This
-means you can run various web servers across various projects at the same time without
-them clashing. 
+A compose file for running traefik as a local reverse proxy for web services. This means
+you can run various web servers across various projects at the same time without them
+clashing.
 
 The typical problem is each project will bring up a web server on port 8000 or
 something. You can try changing ports, but then you have to remember which port
@@ -26,6 +26,8 @@ docker compose up -d
 Traefik will keep running; you don't need to keep doing this after you reboot.
 
 Browse to http://traefik.localhost/ to see the Traefik dashboard.
+
+(If you can't see the dashboard at this point, see the Troubleshooting section below).
 
 ## Test
 
@@ -94,18 +96,7 @@ will have to supply your own override file manually:
 docker compose -f compose.yaml -f compose.override.yaml -f my-overrides.yaml up -d
 ```
 
-## How?
-
-Traefik listens to the Docker daemon and discovers running containers automatically.
-This project sets up Traefik with a default routing rule for each container: if it's
-part of a docker compose set up the host is `service.project.localhost`, otherwise it is
-`containername.localhost`.
-
-Traefik uses labels on each container to configure itself further. This way you don't
-have to have some big global config file. The combination of the default rule plus a
-couple of extra rules is normally all you need.
-
-## Customising
+### Custom labels
 
 You'll need to read the [Traefik docs](https://doc.traefik.io/traefik/) for everything,
 but to give a hint here's another common configuration via a label, you can configure a
@@ -127,13 +118,42 @@ networks:
     external: true
 ```
 
+## How?
+
+Traefik listens to the Docker daemon and discovers running containers automatically.
+This project sets up Traefik with a default routing rule for each container: if it's
+part of a docker compose set up the host is `service.project.localhost`, otherwise it is
+`containername.localhost`.
+
+Traefik uses labels on each container to configure itself further. This way you don't
+have to have some big global config file. The combination of the default rule plus a
+couple of extra rules is normally all you need.
+
+## Customising
+
+Add a `.env` file to this project to conveniently change some of the defaults, supported
+options are:
+
+```env
+PORT=80                         # the port Traefik will listen on
+DOMAIN=localhost                # the domain used for local services
+```
+
 ## Troubleshooting
 
 The above simple set up requires your OS to support a wildcard `localhost`.  This works
-on most GNU/Linux distros like Ubuntu and (I think) MacOS.  It might not work on
-Windows.  On Windows you can use `traefik.me` instead of `localhost`.  This does a real
-DNS lookup that resolves to `127.0.0.1` for any subdomain.  See <http://traefik.me/> for
-further info.
+on most GNU/Linux distros like Ubuntu and (I think) MacOS.  It might not work on Windows
+or other systems.  On those systems you can use `lvh.me` or `traefik.me` instead of
+`localhost`.  This does a real DNS lookup that resolves to `127.0.0.1` for any
+subdomain.  See <http://traefik.me/> for further info.
+
+You could also set up your network to have `localhost` subdomain resolution using
+dnsmasq with the following setting:
+
+```conf
+address=/localhost/127.0.0.1
+address=/localhost/::1
+```
 
 ## Further reading
 
