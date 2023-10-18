@@ -10,16 +10,16 @@ services:
       - --api.dashboard=true
       - --providers.docker
       - --providers.docker.httpClientTimeout=300
-      - --providers.docker.defaultRule=Host(`{{$$dcs := index .Labels "com.docker.compose.service"}}{{if $$dcs}}{{$$dcs}}.{{ index .Labels "com.docker.compose.project" }}{{else}}{{ normalize .Name }}{{end}}.localhost`)
+      - --providers.docker.defaultRule=Host(`{{$$dcs := index .Labels "com.docker.compose.service"}}{{if $$dcs}}{{$$dcs}}.{{ index .Labels "com.docker.compose.project" }}{{else}}{{ normalize .Name }}{{end}}.${DOMAIN:-localhost}`)
     ports:
-      - "80:80"
+      - "${PORT:-80}:80"
     volumes:
       # So that Traefik can listen to the Docker events
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - traefik
     labels:
-      - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)
       - traefik.http.routers.dashboard.service=api@internal
       - traefik.http.services.traefik.loadbalancer.server.port=80
 
